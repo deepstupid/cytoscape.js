@@ -18,19 +18,20 @@ var elesfn = ({
       return this; // chaining and exit early when batching
     }
 
-    var style = cy.style();
     notifyRenderer = notifyRenderer || notifyRenderer === undefined ? true : false;
 
+    const style = cy.style();
     style.apply( this );
 
     var updatedCompounds = this.updateCompoundBounds();
     var toNotify = updatedCompounds.length > 0 ? this.add( updatedCompounds ) : this;
 
-    if( notifyRenderer ){
+    if (notifyRenderer) {
       toNotify.rtrigger( 'style' ); // let renderer know we changed style
     } else {
       toNotify.trigger( 'style' ); // just fire the event
     }
+
     return this; // chaining
   },
 

@@ -77,11 +77,15 @@ util.extend(fabfn, {
 
   // send all threads a message
   broadcast: function( m ){
-    for( var i = 0; i < this.length; i++ ){
-      var thread = this[i];
 
-      thread.message( m );
-    }
+    for (const thread of this)
+      thread.message(m);
+
+    // for( var i = 0; i < this.length; i++ ){
+    //   var thread = this[i];
+    //
+    //   thread.message( m );
+    // }
 
     return this; // chaining
   },

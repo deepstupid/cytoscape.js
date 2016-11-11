@@ -11,6 +11,8 @@ var corefn = ({
   // - guarantee a returned collection when elements or collection specified
   collection: function( eles, opts ){
 
+    //TODO use a switch on typeof, this is. stuff may be slower than that
+
     if( is.string( eles ) ){
       return this.$( eles );
 

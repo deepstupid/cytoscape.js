@@ -1,15 +1,17 @@
-'use strict';
+"use strict";
 
 /*global HTMLElement DocumentTouch */
 
-var window = require( './window' );
-var navigator = window ? window.navigator : null;
-var document = window ? window.document : null;
+const window = require( './window' );
+const navigator = window ? window.navigator : null;
+const document = window ? window.document : null;
 
-var typeofstr = typeof '';
-var typeofobj = typeof {};
-var typeoffn = typeof function(){};
-var typeofhtmlele = typeof HTMLElement;
+const typeofstr = typeof '';
+const typeofobj = typeof {};
+const typeofnumber = typeof 1;
+const typeoffn = typeof function(){};
+const typeofhtmlele = typeof HTMLElement;
+const typeofhtmleleUndef = typeofhtmlele === undefined;
 
 var instanceStr = function( obj ){
   return obj && obj.instanceString && is.fn( obj.instanceString ) ? obj.instanceString() : null;
@@ -21,27 +23,32 @@ var is = {
   },
 
   string: function( obj ){
-    return obj != null && typeof obj == typeofstr;
+    return obj !== null && typeof obj == typeofstr;
   },
 
   fn: function( obj ){
-    return obj != null && typeof obj === typeoffn;
+    return obj !== null && typeof obj === typeoffn;
   },
 
   array: function( obj ){
-    return Array.isArray ? Array.isArray( obj ) : obj != null && obj instanceof Array;
+    //return Array.isArray ? Array.isArray( obj ) : obj !== null &&
+    return obj instanceof Array;
   },
 
   plainObject: function( obj ){
-    return obj != null && typeof obj === typeofobj && !is.array( obj ) && obj.constructor === Object;
+    //return obj !== null && typeof obj === typeofobj
+    return obj instanceof Object
+        && !is.array( obj )
+        && obj.constructor === Object;
   },
 
   object: function( obj ){
-    return obj != null && typeof obj === typeofobj;
+    //return obj !== null && typeof obj === typeofobj;
+      return obj instanceof Object;
   },
 
   number: function( obj ){
-    return obj != null && typeof obj === typeof 1 && !isNaN( obj );
+    return typeof obj === typeofnumber && !Number.isNaN( obj );
   },
 
   integer: function( obj ){
@@ -49,14 +56,15 @@ var is = {
   },
 
   bool: function( obj ){
-    return obj != null && typeof obj === typeof true;
+    return obj === true || obj === false;
+    //return obj !== null && typeof obj === typeof true;
   },
 
   htmlElement: function( obj ){
     if( 'undefined' === typeofhtmlele ){
       return undefined;
     } else {
-      return null != obj && obj instanceof HTMLElement;
+      return obj instanceof HTMLElement;
     }
   },
 
@@ -115,11 +123,7 @@ var is = {
   },
 
   domElement: function( obj ){
-    if( typeof HTMLElement === 'undefined' ){
-      return false; // we're not in a browser so it doesn't matter
-    } else {
-      return obj instanceof HTMLElement;
-    }
+      return typeofhtmleleUndef ? false : (obj instanceof HTMLElement);
   },
 
   boundingBox: function( obj ){

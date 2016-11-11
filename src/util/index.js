@@ -99,11 +99,7 @@ util.extend = Object.assign != null ? Object.assign : function( tgt ){
 };
 
 util.default = function( val, def ){
-  if( val === undefined ){
-    return def;
-  } else {
-    return val;
-  }
+    return val === undefined ? def : val;
 };
 
 util.removeFromArray = function( arr, ele, manyCopies ){
@@ -121,19 +117,13 @@ util.clearArray = function( arr ){
 };
 
 util.getPrefixedProperty = function( obj, propName, prefix ){
-  if( prefix ){
-    propName = this.prependCamel( prefix, propName ); // e.g. (labelWidth, source) => sourceLabelWidth
-  }
-
-  return obj[ propName ];
+  // e.g. (labelWidth, source) => sourceLabelWidth
+  return obj[ prefix ? this.prependCamel( prefix, propName ) : propName ];
 };
 
 util.setPrefixedProperty = function( obj, propName, prefix, value ){
-  if( prefix ){
-    propName = this.prependCamel( prefix, propName ); // e.g. (labelWidth, source) => sourceLabelWidth
-  }
-
-  obj[ propName ] = value;
+  // e.g. (labelWidth, source) => sourceLabelWidth
+  obj[ prefix ? this.prependCamel( prefix, propName ) : propName ] = value;
 };
 
 [
