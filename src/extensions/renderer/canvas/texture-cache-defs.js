@@ -2,7 +2,7 @@
 
 var util = require( '../../../util' );
 
-var fullFpsTime = 1000/60; // assume 60 frames per second
+var fullFpsTime = 1000/30; // assume 60 frames per second
 
 module.exports = {
   setupDequeueing: function( opts ){
