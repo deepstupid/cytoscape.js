@@ -198,20 +198,23 @@ var getBrowserify = function( opts ){
   pipe( $.derequire() );
   pipe( $.replace('{{VERSION}}', version) );
 
-  // if( opts.minify ){
-  //   pipe( $.uglify({
-  //       //mangle: true,
-  //       compress: {
-  //           dead_code: true,
-  //           global_defs: {
-  //               DEBUG: false
-  //           }
-  //       },
-  //       unsafe: true,
-  //       evaluate: true,
-  //       /*preserveComments: 'license'*/
-  //   }) );
-  // }
+  if( opts.minify ){
+
+    var babel = require('gulp-babel');
+    pipe( babel({presets: ['babili'], compact: true}));
+    // pipe( $.uglify({
+    //     mangle: true,
+    //     compress: {
+    //         dead_code: true,
+    //         global_defs: {
+    //             DEBUG: false
+    //         }
+    //     },
+    //     unsafe: true,
+    //     evaluate: true,
+    //     /*preserveComments: 'license'*/
+    // }) );
+  }
 
   if( opts.sourceMaps === true ){
     pipe( $.sourcemaps.write() );
