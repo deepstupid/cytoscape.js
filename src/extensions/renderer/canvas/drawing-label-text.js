@@ -118,11 +118,11 @@ CRp.setupTextStyle = function( context, ele ){
   var outlineOpacity = ele.pstyle( 'text-outline-opacity' ).value * opacity;
   var color = ele.pstyle( 'color' ).value;
   var outlineColor = ele.pstyle( 'text-outline-color' ).value;
-  var shadowBlur = ele.pstyle( 'text-shadow-blur' ).pfValue;
-  var shadowOpacity = ele.pstyle( 'text-shadow-opacity' ).value;
-  var shadowColor = ele.pstyle( 'text-shadow-color' ).value;
-  var shadowOffsetX = ele.pstyle( 'text-shadow-offset-x' ).pfValue;
-  var shadowOffsetY = ele.pstyle( 'text-shadow-offset-y' ).pfValue;
+  // var shadowBlur = ele.pstyle( 'text-shadow-blur' ).pfValue;
+  // var shadowOpacity = ele.pstyle( 'text-shadow-opacity' ).value;
+  // var shadowColor = ele.pstyle( 'text-shadow-color' ).value;
+  // var shadowOffsetX = ele.pstyle( 'text-shadow-offset-x' ).pfValue;
+  // var shadowOffsetY = ele.pstyle( 'text-shadow-offset-y' ).pfValue;
 
   var fontCacheKey = ele._private.fontKey;
   var cache = this.getFontCache( context );
@@ -142,7 +142,7 @@ CRp.setupTextStyle = function( context, ele ){
 
   this.strokeStyle( context, outlineColor[ 0 ], outlineColor[ 1 ], outlineColor[ 2 ], outlineOpacity );
 
-  this.shadowStyle( context, shadowColor, shadowOpacity, shadowBlur, shadowOffsetX, shadowOffsetY );
+  //this.shadowStyle( context, shadowColor, shadowOpacity, shadowBlur, shadowOffsetX, shadowOffsetY );
 };
 
 function roundRect( ctx, x, y, width, height, radius ){
@@ -365,7 +365,7 @@ CRp.drawText = function( context, ele, prefix ){
       context.translate( -orgTextX, -orgTextY );
     }
 
-    this.shadowStyle( context, 'transparent', 0 ); // reset for next guy
+    //this.shadowStyle( context, 'transparent', 0 ); // reset for next guy
   }
 };
 

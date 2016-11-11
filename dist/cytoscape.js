@@ -2,7 +2,7 @@
 
 /*!
 
-Cytoscape.js snapshot-00e62016ab-1478878559052 (MIT licensed)
+Cytoscape.js snapshot-7d82134c69-1478882899699 (MIT licensed)
 
 Copyright (c) The Cytoscape Consortium
 
@@ -19389,13 +19389,16 @@ var useHighQualityEleTxrReqs = true; // whether to use high quality ele txr requ
 var useEleTxrCaching = true; // whether to use individual ele texture caching underneath this cache
 
 // var log = function(){ console.log.apply( console, arguments ); };
+const qSort = function(a, b){
+    return b.reqs - a.reqs;
+};
 
 var LayeredTextureCache = function( renderer, eleTxrCache ){
   var self = this;
 
   var r = self.renderer = renderer;
 
-  self.layersByLevel = {}; // e.g. 2 => [ layer1, layer2, ..., layerN ]
+  self.layersByLevel = new Map(); // e.g. 2 => [ layer1, layer2, ..., layerN ]
 
   self.firstGet = true;
 
@@ -19404,16 +19407,9 @@ var LayeredTextureCache = function( renderer, eleTxrCache ){
   self.skipping = false;
 
   r.beforeRender(function( willDraw, now ){
-    if( now - self.lastInvalidationTime <= invalidThreshold ){
-      self.skipping = true;
-    } else {
-      self.skipping = false;
-    }
+      self.skipping = now - self.lastInvalidationTime <= invalidThreshold;
   });
 
-  var qSort = function(a, b){
-    return b.reqs - a.reqs;
-  };
 
   self.layersQueue = new Heap( qSort );
 
@@ -19478,7 +19474,7 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
   // log('--\nget layers with %s eles', eles.length);
   //log eles.map(function(ele){ return ele.id() }) );
 
-  if( lvl == null ){
+  if( lvl === null ){
     lvl = Math.ceil( math.log2( zoom * pxRatio ) );
 
     if( lvl < minLvl ){
@@ -19492,7 +19488,11 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
 
   var layersByLvl = self.layersByLevel;
   var scale = Math.pow( 2, lvl );
-  var layers = layersByLvl[ lvl ] = layersByLvl[ lvl ] || [];
+
+  var layers = layersByLvl.get(lvl);
+  if (!layers)
+    layersByLvl.set(lvl, layers = []);
+
   var bb;
 
   var lvlComplete = self.levelIsComplete( lvl, eles );
@@ -19503,7 +19503,7 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
       self.validateLayersElesOrdering( l, eles );
 
       if( self.levelIsComplete( l, eles ) ){
-        tmpLayers = layersByLvl[l];
+        tmpLayers = layersByLvl.get(l);
         return true;
       }
     };
@@ -19544,9 +19544,8 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
     if( !bb ){
       bb = math.makeBoundingBox();
 
-      for( var i = 0; i < eles.length; i++ ){
-        math.updateBoundingBox( bb, eles[i].boundingBox() );
-      }
+      for (const e of eles)
+          math.updateBoundingBox( bb, e.boundingBox() );
     }
 
     return bb;
@@ -19567,7 +19566,7 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
 
     var layer = self.makeLayer( bb, lvl );
 
-    if( after != null ){
+    if( after !== null ){
       var index = layers.indexOf( after ) + 1;
 
       layers.splice( index, 0, layer );
@@ -19597,11 +19596,11 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
   for( var i = 0; i < eles.length; i++ ){
     var ele = eles[i];
     var rs = ele._private.rscratch;
-    var caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
+    var caches = rs.imgLayerCaches = rs.imgLayerCaches || new Map();
 
     // log('look at ele', ele.id());
 
-    var existingLayer = caches[ lvl ];
+    var existingLayer = caches.get(lvl); //[ lvl ];
 
     if( existingLayer ){
       // reuse layer for later eles
@@ -19635,7 +19634,7 @@ LTCp.getLayers = function( eles, pxRatio, lvl ){
 
     layer.eles.push( ele );
 
-    caches[ lvl ] = layer;
+    caches.set(lvl, layer);
   }
 
   // log('--');
@@ -19696,7 +19695,7 @@ LTCp.drawEleInLayer = function( layer, ele, lvl, pxRatio ){
 
 LTCp.levelIsComplete = function( lvl, eles ){
   var self = this;
-  var layers = self.layersByLevel[ lvl ];
+  var layers = self.layersByLevel.get(lvl);
 
   if( !layers || layers.length === 0 ){ return false; }
 
@@ -19721,7 +19720,7 @@ LTCp.levelIsComplete = function( lvl, eles ){
 };
 
 LTCp.validateLayersElesOrdering = function( lvl, eles ){
-  var layers = this.layersByLevel[ lvl ];
+  var layers = this.layersByLevel.get(lvl);
 
   if( !layers ){ return; }
 
@@ -19771,10 +19770,10 @@ LTCp.updateElementsInLayers = function( eles, update ){
     var req = isEles ? null : eles[i];
     var ele = isEles ? eles[i] : eles[i].ele;
     var rs = ele._private.rscratch;
-    var caches = rs.imgLayerCaches = rs.imgLayerCaches || {};
+    var caches = rs.imgLayerCaches = rs.imgLayerCaches || new Map();
 
     for( var l = minLvl; l <= maxLvl; l++ ){
-      var layer = caches[l];
+      var layer = caches.get(l);
 
       if( !layer ){ continue; }
 
@@ -19794,7 +19793,7 @@ LTCp.haveLayers = function(){
   var haveLayers = false;
 
   for( var l = minLvl; l <= maxLvl; l++ ){
-    var layers = self.layersByLevel[l];
+    var layers = self.layersByLevel.get(l);
 
     if( layers && layers.length > 0 ){
       haveLayers = true;
@@ -19828,7 +19827,7 @@ LTCp.invalidateLayer = function( layer ){
 
   var lvl = layer.level;
   var eles = layer.eles;
-  var layers = this.layersByLevel[ lvl ];
+  var layers = this.layersByLevel.get(lvl);
 
    // log('invalidate layer', layer.id );
 
@@ -19847,7 +19846,7 @@ LTCp.invalidateLayer = function( layer ){
     var caches = eles[i]._private.rscratch.imgLayerCaches;
 
     if( caches ){
-      caches[ lvl ] = null;
+      caches.delete(lvl);
     }
   }
 };
@@ -19996,7 +19995,7 @@ LTCp.dequeue = function( pxRatio ){
 
 LTCp.applyLayerReplacement = function( layer ){
   var self = this;
-  var layersInLevel = self.layersByLevel[ layer.level ];
+  var layersInLevel = self.layersByLevel.get( layer.level );
   var replaced = layer.replaces;
   var index = layersInLevel.indexOf( replaced );
 
@@ -20012,10 +20011,10 @@ LTCp.applyLayerReplacement = function( layer ){
   // replace refs in eles
   for( var i = 0; i < layer.eles.length; i++ ){
     var _p = layer.eles[i]._private;
-    var cache = _p.imgLayerCaches = _p.imgLayerCaches || {};
+    var cache = _p.imgLayerCaches = _p.imgLayerCaches || new Map();
 
     if( cache ){
-      cache[ layer.level ] = layer;
+      cache.set( layer.level , layer );
     }
   }
 
@@ -20073,7 +20072,7 @@ module.exports = CRp;
 
 var util = require( '../../../util' );
 
-var fullFpsTime = 1000/60; // assume 60 frames per second
+const fullFpsTime = 1000/30; // assumed frame period (ms)
 
 module.exports = {
   setupDequeueing: function( opts ){
@@ -26874,7 +26873,7 @@ util.debounce = function( func, wait, options ){ // ported lodash debounce funct
 module.exports = util;
 
 },{"../is":83,"../window":106}],105:[function(require,module,exports){
-module.exports="snapshot-00e62016ab-1478878559052"
+module.exports="snapshot-7d82134c69-1478882899699"
 },{}],106:[function(require,module,exports){
 module.exports = ( typeof window === 'undefined' ? null : window ); // eslint-disable-line no-undef
 
